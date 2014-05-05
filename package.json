@@ -8,6 +8,7 @@
     "connect": "2.14.5",
     "node-rest-client": "0.8.6",
     "lodash": "2.4.1",
-    "moment": "2.6.0"
+    "moment": "2.6.0",
+    "rally": "~0.1.3"
   }
 }

@@ -5,8 +5,25 @@ var http = require('http'),
     path = require('path'),
     connect = require("connect"),
     Client = require('node-rest-client').Client,
-    _ = require('lodash'),
+    _ = require('lodash');
 
+var rally = require('rally'),
+    restApi = rally({
+        user: 'wrackzone@rallydev.com', //required if no api key, defaults to process.env.RALLY_USERNAME
+        pass: 'Just4Rally', //required if no api key, defaults to process.env.RALLY_PASSWORD
+        // apiKey: '_12fj83fjk...', //preferred, required if no user/pass, defaults to process.env.RALLY_API_KEY
+        // apiVersion: 'v2.0', //this is the default and may be omitted
+        server: 'https://rally1.rallydev.com',  //this is the default and may be omitted
+        requestOptions: {
+            headers: {
+                'X-RallyIntegrationName': 'Rally Webhook Example',  //while optional, it is good practice to
+                'X-RallyIntegrationVendor': 'Barry Mullan',             //provide this header information
+                'X-RallyIntegrationVersion': '1.0'                    
+            }
+            //any additional request options (proxy options, timeouts, etc.)     
+        }
+    }),
+    refUtils = rally.util.ref;
 
 client = new Client();
 
@@ -35,7 +52,32 @@ app.get('/:collection', function(req, res) { //A
 app.post('/:collection', function(req, res) { //A
    var params = req.params; //B
    console.log(req.params.collection);
-   res.send(200,(req.body));
+
+	if ( req.params.collection==="update") {
+		var obj = req.body; // JSON.parse(req.body);
+		var name = obj["state"]["500a0d67-9c48-4145-920c-821033e4a832"]["value"];
+		var objectID = obj["state"]["06841c63-ebce-4b6f-a2fc-8fd4ed0776ce"]["value"];
+		var ref = "/defect/"+objectID;
+		console.log("Name:",name,"ObjectID:",objectID,"Ref:",ref);
+
+		restApi.update ( {
+			ref : ref,
+			data : {
+				ScheduleState : "Accepted"
+			},
+			fetch : ["FormattedID","Name"],
+		},
+		function( error, result) {
+			if (error) {
+				console.log("Error:",error);
+			} else {
+				console.log(JSON.stringify(result.Object));
+			}
+		}
+		);
+   	}
+
+   res.send(200,(req.body.length));
 });
 
 // app.use(function (req,res) {
@@ -47,7 +89,26 @@ http.createServer(app).listen(app.get('port'), function(){
 });
 
 
-// curl -H "Content-Type: application/json" -X POST -d ' { "fullName":"wrackzone/psi-feature-burnup", "data":[]}' http://localhost:3000/update
+// curl -H "Content-Type: application/json" -X POST --data-binary @sample.json  http://localhost:3000/update
+
+
+function updateDefect(result) {
+    console.log('Updating defect...');
+    restApi.update({
+        ref: result.Object,
+        data: {
+            Name: 'My Updated Defect'
+        },
+        fetch: ['Name']
+    }, function(error, result) {
+        if(error) {
+            onError(error);
+        } else {
+            console.log('Defect updated:', result.Object.Name);
+            deleteDefect(result);
+        }
+    });
+}
 
 
 
