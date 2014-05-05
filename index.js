@@ -69,8 +69,8 @@ app.post('/:collection', function(req, res) { //A
 		logger.warn("update");
 		logger.warn(req.body);
 		var obj = req.body; // JSON.parse(req.body);
-		var name = obj["state"]["500a0d67-9c48-4145-920c-821033e4a832"]["value"];
-		var objectID = obj["state"]["06841c63-ebce-4b6f-a2fc-8fd4ed0776ce"]["value"];
+		var name = obj["message"]["state"]["500a0d67-9c48-4145-920c-821033e4a832"]["value"];
+		var objectID = obj["message"]["state"]["06841c63-ebce-4b6f-a2fc-8fd4ed0776ce"]["value"];
 		var ref = "/defect/"+objectID;
 		console.log("Name:",name,"ObjectID:",objectID,"Ref:",ref);
 
