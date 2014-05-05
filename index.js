@@ -25,6 +25,18 @@ var rally = require('rally'),
     }),
     refUtils = rally.util.ref;
 
+var log4js = require('log4js');
+log4js.configure({
+  appenders: [
+    // { type: 'console' },
+    { type: 'file', filename: 'logs.log' }
+  ]
+});
+
+var logger = log4js.getLogger();
+logger.setLevel(log4js.levels.DEBUG);
+logger.warn("Some debug messages");
+
 client = new Client();
 
 // comment
@@ -43,17 +55,19 @@ app.get('/', function (req, res) {
   res.send('<html><body><h1>Hello World</h1></body></html>');
 });
 
-app.get('/:collection', function(req, res) { //A
-   var params = req.params; //B
-   console.log(req.params.collection);
-   res.send(200,JSON.parse(req.body));
-});
+// app.get('/:collection', function(req, res) { //A
+//    var params = req.params; //B
+//    console.log(req.params.collection);
+//    res.send(200,JSON.parse(req.body));
+// });
 
 app.post('/:collection', function(req, res) { //A
    var params = req.params; //B
    console.log(req.params.collection);
 
 	if ( req.params.collection==="update") {
+		logger.warn("update");
+		logger.warn(req.body);
 		var obj = req.body; // JSON.parse(req.body);
 		var name = obj["state"]["500a0d67-9c48-4145-920c-821033e4a832"]["value"];
 		var objectID = obj["state"]["06841c63-ebce-4b6f-a2fc-8fd4ed0776ce"]["value"];
